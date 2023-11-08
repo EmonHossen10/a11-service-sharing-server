@@ -1,6 +1,10 @@
 const express = require("express");
 const app = express();
+let cors = require("cors");
 const port = process.emitWarning.env || 5000;
+
+app.use(cors());
+app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("This is service sharing server site");
