@@ -1,7 +1,7 @@
 const express = require("express");
 let cors = require("cors");
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -33,10 +33,53 @@ async function run() {
     const serviceCollection = client
       .db("serviceMasterDB")
       .collection("services");
+    const bookingCollection = client
+      .db("serviceMasterDB")
+      .collection("bookings");
+    const addService = client.db("serviceMasterDB").collection("addService");
 
     app.get("/services", async (req, res) => {
       const cursor = serviceCollection.find();
       const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.get("/services/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      console.log(query);
+      const result = await serviceCollection.findOne(query);
+      res.send(result);
+    });
+
+    // --04 add services
+    app.post("/addservices", async (req, res) => {
+      const newService = req.body;
+      const result = await addService.insertOne(newService);
+      res.send(result);
+    });
+    app.get("/showAddService", async (req, res) => {
+      const cursor = addService.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // some bookings
+    app.get("/bookings", async (req, res) => {
+      console.log(req.query);
+      let query = {};
+      if (req.query?.email) {
+        query = { email: req.query.email };
+        c;
+      }
+      const result = await bookingCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.post("/addbookings", async (req, res) => {
+      const newBooking = req.body;
+      console.log(newBooking);
+      const result = await bookingCollection.insertOne(newBooking);
       res.send(result);
     });
 
