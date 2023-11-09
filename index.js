@@ -58,9 +58,17 @@ async function run() {
       const result = await addService.insertOne(newService);
       res.send(result);
     });
+
     app.get("/showAddService", async (req, res) => {
       const cursor = addService.find();
       const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.get("/showAddService/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await addService.deleteOne(query);
       res.send(result);
     });
 
@@ -70,9 +78,17 @@ async function run() {
       let query = {};
       if (req.query?.email) {
         query = { email: req.query.email };
-        c;
       }
       const result = await bookingCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.get("/showAddService", async (req, res) => {
+      console.log(req.query);
+      let query = {};
+      if (req.query?.email) {
+        query = { email: req.query.email };
+      }
+      const result = await addService.find(query).toArray();
       res.send(result);
     });
 
