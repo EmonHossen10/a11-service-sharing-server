@@ -46,16 +46,16 @@ async function run() {
     const bookingCollection = client
       .db("serviceMasterDB")
       .collection("bookings");
-    const addService = client.db("serviceMasterDB").collection("addService");
+    // const addService = client.db("serviceMasterDB").collection("addService");
 
-    // -- 01
+    // -- 01 show all service
 
     app.get("/services", async (req, res) => {
       const cursor = serviceCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     });
-    // -- 02
+    // -- 02  show specific service from  all service
 
     app.get("/services/:id", async (req, res) => {
       const id = req.params.id;
@@ -65,44 +65,59 @@ async function run() {
       res.send(result);
     });
 
-    // --03 add services
+    // --03 add services in all service database
     app.post("/addservices", async (req, res) => {
       const newService = req.body;
-      const result = await addService.insertOne(newService);
+      const result = await serviceCollection.insertOne(newService);
       res.send(result);
     });
-    // -- 04 show service with query
 
-    app.get("/showAddService", async (req, res) => {
-      console.log(req.query.email);
+    // -- 04 show adding  service with query
+    // app.get("/services", async (req, res) => {
+    //   console.log("1st query" ,req.query.email);
+    //   let query = {};
+    //   if (req.query?.email) {
+    //     query = { email: req.query.email };
+    //   }
+    //   console.log("2ns query  user email",query)
+    //   const cursor = serviceCollection.find(query);
+    //   const result = await cursor.toArray();
+    //   res.send(result);
+    // });
+
+    // -- 04 show adding  service with query
+    app.get("/showServices", async (req, res) => {
+      console.log(req.query.userEmail);
       let query = {};
-      if (req.query?.email) {
-        query = { email: req.query.email };
+      if (req.query?.userEmail) {
+        query = { userEmail: req.query.userEmail };
       }
-      const cursor = addService.find(query);
+      const cursor = serviceCollection.find(query);
       const result = await cursor.toArray();
       res.send(result);
     });
 
-    // -- 05
+    // -- 05 delete service from my service
 
     app.delete("/showAddService/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       console.log(id);
-      const result = await addService.deleteOne(query);
+      const result = await serviceCollection.deleteOne(query);
       res.send(result);
     });
+
+    // --06 show adding service by id
 
     app.get("/showAddService/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       console.log("id from ", id);
-      const result = await addService.findOne(query);
+      const result = await serviceCollection.findOne(query);
       res.send(result);
     });
 
-    // update add service
+    // --07  update add service
     app.put("/showAddService/:id", async (req, res) => {
       try {
         const id = req.params.id;
@@ -112,21 +127,21 @@ async function run() {
         console.log("updated", updatedService);
         const update = {
           $set: {
-            Image: updatedService.pic,
-            Name: updatedService.name,
-            description: updatedService.description,
-            serviceArea: updatedService.area,
-            Price: updatedService.price,
+            serviceImage: updatedService.serviceImage,
+            serviceName: updatedService.serviceName,
+            serviceDescription: updatedService.serviceDescription,
+            serviceArea: updatedService.serviceArea,
+            servicePrice: updatedService.servicePrice,
           },
         };
-        const result = await addService.updateOne(filter, update);
+        const result = await serviceCollection.updateOne(filter, update);
         res.send(result);
       } catch (error) {
         console.log(error);
       }
     });
 
-    // -- 07 some bookings
+    // -- 08 some bookings
     app.get("/bookings", async (req, res) => {
       console.log(req.query);
       let query = {};
@@ -137,7 +152,20 @@ async function run() {
       res.send(result);
     });
 
-    // -- 08
+    //--09 pending works
+    app.get("/pendingBooking", async (req, res) => {
+      console.log("pending here", req.query.serviceProviderEmail);
+
+      let query = {};
+      if (req.query?.serviceProviderEmail) {
+        query = { serviceProviderEmail: req.query.serviceProviderEmail };
+      }
+
+      const result = await bookingCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // -- 10
 
     app.post("/addbookings", async (req, res) => {
       const newBooking = req.body;
@@ -145,6 +173,16 @@ async function run() {
       const result = await bookingCollection.insertOne(newBooking);
       res.send(result);
     });
+
+    // --11 pending booking
+    app.put("/pendingBooking/:id",async(req,res)=>{
+      const id=req.params.id;
+      const filter={_id: new ObjectId(id)}
+      const updatePending=req.body;
+      console.log(updatePending)
+      const options = { upsert: true };
+
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
