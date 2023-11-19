@@ -175,14 +175,20 @@ async function run() {
     });
 
     // --11 pending booking
-    app.put("/pendingBooking/:id",async(req,res)=>{
-      const id=req.params.id;
-      const filter={_id: new ObjectId(id)}
-      const updatePending=req.body;
-      console.log(updatePending)
-      const options = { upsert: true };
-
-    })
+    app.put("/pendingBooking/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      let updatePending = req.body;
+      console.log("from update", id, updatePending.status);
+      const updateDoc = {
+        $set: {
+          status: updatePending.status,
+        },
+      };
+      const result=await bookingCollection.updateOne(filter,updateDoc)
+      res.send(result)
+      
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
