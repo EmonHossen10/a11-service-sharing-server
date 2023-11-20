@@ -5,22 +5,9 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 5000;
 
-// cors
-app.use(
-  cors({
-    otigin: [
-      // "http://localhost:5173/"
-      "https://service-master-9864e.web.app/",
-      "https://service-master-9864e.firebaseapp.com/",
-    ],
-    credentials: true,
-  })
-);
+// middleware
 app.use(cors());
 app.use(express.json());
-
-//8KfKU1cEyCXpXsAx
-//serviceMaster
 
 //******************************************************* */
 
@@ -38,7 +25,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const serviceCollection = client
       .db("serviceMasterDB")
@@ -46,7 +33,6 @@ async function run() {
     const bookingCollection = client
       .db("serviceMasterDB")
       .collection("bookings");
-    // const addService = client.db("serviceMasterDB").collection("addService");
 
     // -- 01 show all service
 
@@ -71,19 +57,6 @@ async function run() {
       const result = await serviceCollection.insertOne(newService);
       res.send(result);
     });
-
-    // -- 04 show adding  service with query
-    // app.get("/services", async (req, res) => {
-    //   console.log("1st query" ,req.query.email);
-    //   let query = {};
-    //   if (req.query?.email) {
-    //     query = { email: req.query.email };
-    //   }
-    //   console.log("2ns query  user email",query)
-    //   const cursor = serviceCollection.find(query);
-    //   const result = await cursor.toArray();
-    //   res.send(result);
-    // });
 
     // -- 04 show adding  service with query
     app.get("/showServices", async (req, res) => {
@@ -185,9 +158,8 @@ async function run() {
           status: updatePending.status,
         },
       };
-      const result=await bookingCollection.updateOne(filter,updateDoc)
-      res.send(result)
-      
+      const result = await bookingCollection.updateOne(filter, updateDoc);
+      res.send(result);
     });
 
     // Send a ping to confirm a successful connection
